@@ -1,6 +1,10 @@
 # stateline and R on a mac via docker
 
-First, build the stateline docker container.
+On a mac, you may need to run `$(boot2docker shellinit)` to set up all your environment variables in each terminal window that you run docker in, as usual.
+
+First, build the stateline docker container (adapt the path as necessary).
+
+    docker build -t stateline ../stateline
 
 Then build a container that contains a little more:
 
