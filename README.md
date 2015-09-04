@@ -36,6 +36,14 @@ Once these are created, just fire up the server container and then a worker cont
     docker run --rm -it --name=mystateline stateliner-python-server
     docker run --rm -it --link mystateline:stateline stateliner-python-worker
 
+## Running the R bits, with linked containers
+
+    docker build -t stateliner-r-server -f python-server.dock .
+    docker build -t stateliner-r-worker -f r-worker.dock .
+
+    docker run --rm -it --name=mystateline stateliner-python-server
+    docker run --rm -it --link mystateline:stateline stateliner-r-worker -n stateline:5555
+
 # Old notes below here:
 
 Run the container, mapping the local directory `r-demo-output` (which does not need to exist) to the appropriate place in the container, and launch the stateline server:

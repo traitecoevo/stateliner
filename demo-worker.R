@@ -1,9 +1,8 @@
-## This could be made much more nice if the socket would arrange to
-## close once it goes out of scope.
-
+#!/usr/bin/env Rscript
 library(rzmq)
 library(loggr)
 library(jsonlite)
+library(docopt)
 
 ## These are little helpers...
 send.socket.string <- function(socket, data, send.more=FALSE) {
@@ -22,7 +21,6 @@ receive.multipart.string <- function(socket) {
   vapply(receive.multipart(socket), rawToChar, character(1))
 }
 
-
 HELLO     <- "0"
 HEARTBEAT <- "1"
 REQUEST   <- "2"
@@ -39,10 +37,14 @@ handle_job <- function(job_type, job_data) {
   nll(sample)
 }
 
-send_hello <- function(socket, jobTypes) {
+send_hello <- function(socket, nJobTypes) {
   loggr::log_info("Sending HELLO message...")
-  msg <- c("", HELLO, paste(jobTypes, collapse=":"))
+  msg <- c("", HELLO, sprintf("0:%s", nJobTypes))
   send.multipart.string(socket, msg)
+}
+
+random_string <- function() {
+  paste(sample(letters, 10), collapse="")
 }
 
 job_loop <- function(socket) {
@@ -81,25 +83,36 @@ main <- function() {
   on.exit(loggr::deactivate_log())
 
   loggr::log_info("Starting client")
-  ## Ideally, we'd harvest the PID here, but that requires a
-  ## subprocess-like R package
-  system2("./stateline-client", wait=FALSE)
+  args <- parse_args()
+  addr <- sprintf("ipc:///tmp/sl_worker%s.socket", random_string())
 
-  config <- jsonlite::fromJSON(readLines("python-demo-config.json"))
-  jobTypes <- config$jobTypes
+  client_args <- c("-n", args$delegator_address, "-w", addr)
+  system2("./stateline-client", client_args, wait=FALSE)
+
+  config <- jsonlite::fromJSON(readLines(args$config))
+  nJobTypes <- config$nJobTypes
 
   ctx <- rzmq::init.context()
   socket <- rzmq::init.socket(ctx, "ZMQ_DEALER")
-
-  addr <- "ipc:///tmp/sl_worker.socket"
 
   loggr::log_info(sprintf("Connecting to %s...", addr))
   connect.socket(socket, addr)
   on.exit(disconnect.socket(socket, addr), add=TRUE)
   loggr::log_info("Connected!")
 
-  send_hello(socket, jobTypes)
+  send_hello(socket, nJobTypes)
   job_loop(socket)
+}
+
+parse_args <- function(args=commandArgs(TRUE)) {
+  'Usage:
+  demo-worker.R [-c CONFIG] [-n ADDRESS]
+  Options:
+  -c CONFIG    Filename for the json configuration [default: demo-config.json]
+  -n ADDRESS   Address of the delegator [default: localhost:5555]
+' -> doc
+  args <- docopt(doc, args)
+  list(config=args$c, delegator_address=args$n)
 }
 
 if (!interactive()) {
