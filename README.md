@@ -2,13 +2,41 @@
 
 On a mac, you may need to run `$(boot2docker shellinit)` to set up all your environment variables in each terminal window that you run docker in, as usual.
 
-First, build the stateline docker container (adapt the path as necessary).
+First, build the base stateline docker container (adapt the path as necessary).
 
-    docker build -t stateline ../stateline
+    docker build -t stateline -f ../stateline/docker/stateline.dock ../stateline
 
-Then build a container that contains a little more:
+Then build a container that contains a little more dependencies (for the Python worker and R worker examples)
 
     docker build -t stateliner .
+
+## Running in a single container via exec
+
+Running the main application is pretty straightforward;
+
+    docker run --rm -it --name=mystateline stateline stateline -c /tmp/build/demo-config.json
+    stateline -c /tmp/build/demo-config.json
+    docker exec -it mystateline demo-worker
+
+Running the python version is a bit more of a faff
+
+    docker build -t stateliner-python-standalone -f python-standalone.dock .
+    docker run --rm -it --name=mystateline stateliner-python-standalone stateline -c demo-config.json
+    docker exec -it mystateline python /tmp/build/demo-worker.py
+
+## Running the Proper Way with linked containers
+
+There's a little more work needed to get the python containers working; we need to copy the configuration to where it is expected by the scripts, and to copy in a modified version of `demo-python.py` script that allows pointing the delegator at the address of the linked container (i.e., moving from `localhost:5555` to `stateline:5555`).
+
+    docker build -t stateliner-python-server -f python-server.dock .
+    docker build -t stateliner-python-worker -f python-worker.dock .
+
+Once these are created, just fire up the server container and then a worker container that links appropriately:
+
+    docker run --rm -it --name=mystateline stateliner-python-server
+    docker run --rm -it --link mystateline:stateline stateliner-python-worker
+
+# Old notes below here:
 
 Run the container, mapping the local directory `r-demo-output` (which does not need to exist) to the appropriate place in the container, and launch the stateline server:
 
