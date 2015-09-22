@@ -27,3 +27,5 @@ RUN wget https://github.com/smbache/loggr/archive/master.zip && \
   unzip master.zip && R CMD INSTALL loggr-master && rm -fr master.zip loggr-master
 
 RUN Rscript -e 'install.packages("jsonlite", repos="http://cran.rstudio.com")'
+
+RUN Rscript -e 'install.packages("docopt", repos="http://cran.rstudio.com")'

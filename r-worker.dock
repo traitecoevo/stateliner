@@ -1,6 +1,0 @@
-# -*-dockerfile-*-
-FROM stateliner
-RUN cp `which stateline-client` /usr/local/src/stateline/src/bin/demo-config.json .
-RUN Rscript -e 'install.packages("docopt", repos="http://cran.rstudio.com")'
-ADD demo-worker.R ./
-ENTRYPOINT ["./demo-worker.R"]

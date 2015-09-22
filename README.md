@@ -1,43 +1,40 @@
 # stateline and R on a mac via docker
 
-Example of using [stateline](https://github.com/NICTA/stateline). 
+Example of using [stateline](https://github.com/NICTA/stateline).
 
-On a mac, you'll need to have docker-machine running and have to set up all your environment variables in each terminal window that you run docker in, as usual. (e.g. `eval "$(docker-machine env default)"`)
+You'll need to have docker-machine running and have to set up all your environment variables in each terminal window that you run docker in, as usual. (e.g. on a mac, run `eval "$(docker-machine env default)"`)
 
-To run stateline, we first need to build the relevant docker containers.  We're building our image
-off the [lmccalman/stateline](https://hub.docker.com/r/lmccalman/stateline/) image, so the first thing that will happen when you try to build is that the docker will pull down that repo. 
+We first need to build the relevant docker containers.  We're building a container
+off the [lmccalman/stateline](https://hub.docker.com/r/lmccalman/stateline/) image from dockerhub, so the first thing that will happen when you try to build the stateliner image is that the docker will pull down that repo.
 
 Then build a container that contains a little more dependencies (for the Python worker and R worker examples)
 
-    docker build -t stateliner .
+    docker build -t traitecoevo/stateliner .
 
-## Running in a single container
+Instead of building the conatiner you can also pull it from dockerhub 
 
-    docker run --rm -it --name=mystateline lmccalman/stateline /usr/local/bin/stateline -c /usr/local/src/stateline/src/bin/demo-config.json
-    docker exec -it mystateline /usr/local/bin/demo-worker
+    docker pull lmccalman/stateline 
+    docker pull traitecoevo/stateliner 
 
-Running the python version is a bit more of a faff
+All the examples below run using linked containers. The local folder `config` contains files for configuring stateline `demo-config.json` and for R and python based workers. When running the material below we mount this folder onto the containers. This enables us to source local files, without requiring that we rebuild the container each time these change.
 
-    docker build -t stateliner-python-standalone -f python-standalone.dock .
-    docker run --rm -it --name=mystateline stateliner-python-standalone stateline -c demo-config.json
-    docker exec -it mystateline python /usr/local/src/stateline/src/bin/demo-worker.py
+First, start server
 
-## Running the Proper Way with linked containers
+    docker run --rm --name mystateline -it -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/stateline -c /config/demo-config.json
 
-There's a little more work needed to get the python containers working; we need to copy the configuration to where it is expected by the scripts, and to copy in a modified version of `demo-python.py` script that allows pointing the delegator at the address of the linked container (i.e., moving from `localhost:5555` to `stateline:5555`).
+Then start a worker, using any of the following
 
-    docker build -t stateliner-python-server -f python-server.dock .
-    docker build -t stateliner-python-worker -f python-worker.dock .
+inbuilt worker written in cpp
 
-Once these are created, just fire up the server container and then a worker container that links appropriately:
+    docker run --rm -it --link mystateline:stateline -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/demo-worker -a stateline:5555
 
-    docker run --rm -it --name=mystateline stateliner-python-server
-    docker run --rm -it --link mystateline:stateline stateliner-python-worker
+python worker
 
-## Running the R bits, with linked containers
+    docker run --rm -it --link mystateline:stateline -v $(pwd)/config:/config traitecoevo/stateliner python /config/demo-worker.py
+(note needs stateliner image because lmccalman/stateline lacks zeromq)
 
-    docker build -t stateliner-r-server -f python-server.dock .
-    docker build -t stateliner-r-worker -f r-worker.dock .
+R worker
 
-    docker run --rm -it --name=mystateline stateliner-python-server
-    docker run --rm -it --link mystateline:stateline stateliner-r-worker -n stateline:5555
+    docker run --rm -it --link mystateline:stateline  -v $(pwd)/config:/config traitecoevo/stateliner /config/demo-worker.R -n stateline:5555 -c /config/demo-config.json
+
+These all seem to work; only problem is that we need to locate output files. Previously we mounted `-v $(pwd)/output/stateline:/tmp/build/output/stateline` but this no longer works because the tmp direcoty no longer exists. Once we locate the output files in the container we can do something similar. 

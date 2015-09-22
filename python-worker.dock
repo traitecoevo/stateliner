@@ -1,6 +1,0 @@
-# -*-dockerfile-*-
-FROM stateliner
-RUN cp `which stateline-client` /usr/local/src/stateline/src/bin/demo-config.json .
-# Updated version expecting delegator address as stateline:5555
-ADD demo-worker.py ./
-CMD ["python", "demo-worker.py"]
