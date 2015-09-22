@@ -62,7 +62,7 @@ def main():
     host = "stateline:5555"
 
     logging.info('Starting client')
-    client_proc = subprocess.Popen(['./stateline-client', '-w', addr, '-n', host])
+    client_proc = subprocess.Popen(['/usr/local/bin/stateline-client', '-w', addr, '-n', host])
     logging.info('Started client')
 
     # Load configuration

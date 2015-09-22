@@ -87,7 +87,7 @@ main <- function() {
   addr <- sprintf("ipc:///tmp/sl_worker%s.socket", random_string())
 
   client_args <- c("-n", args$delegator_address, "-w", addr)
-  system2("./stateline-client", client_args, wait=FALSE)
+  system2("/usr/local/bin/stateline-client", client_args, wait=FALSE)
 
   config <- jsonlite::fromJSON(readLines(args$config))
   nJobTypes <- config$nJobTypes

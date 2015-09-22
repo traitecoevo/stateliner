@@ -1,4 +1,4 @@
 # -*-dockerfile-*-
 FROM stateliner
-RUN cp `which stateline-client` /tmp/build/demo-config.json .
+RUN cp `which stateline-client` /usr/local/src/stateline/src/bin/demo-config.json .
 CMD ["/usr/local/bin/stateline", "-c", "demo-config.json"]

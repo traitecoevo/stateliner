@@ -2,5 +2,5 @@
 FROM stateliner
 # NOTE: demo-worker.py requires the specific name
 # 'demo-config.json` to initialise.
-RUN cp `which stateline-client` /tmp/build/demo-config.json .
+RUN cp `which stateline-client` /usr/local/src/stateline/src/bin/demo-config.json .
 CMD ["bash"]
