@@ -11,7 +11,7 @@ Then build a container that contains a little more dependencies (for the Python 
 
     docker build -t stateliner .
 
-## Running in a single, linked container
+## Running in a single container
 
     docker run --rm -it --name=mystateline lmccalman/stateline /usr/local/bin/stateline -c /usr/local/src/stateline/src/bin/demo-config.json
     docker exec -it mystateline /usr/local/bin/demo-worker
