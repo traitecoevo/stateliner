@@ -2,7 +2,9 @@
 
 Example of using [stateline](https://github.com/NICTA/stateline).
 
-You'll need to have docker-machine running and have to set up all your environment variables in each terminal window that you run docker in, as usual. (e.g. on a mac, run `eval "$(docker-machine env default)"`)
+You'll need to have docker-machine running and have to set up all your environment variables in each terminal window that you run docker in, as usual. Docker can be installed on OSX, Windows and Linux. A comprehensive guide can be found [here](http://docs.docker.com/mac/started/).
+
+Once installed, Docker can be opened either via `Docker Quickstart Terminal` found in the docker folder in the applications folder, or accessed directly via the terminal using `docker-machine` followed by Docker commands. The instructions below use `docker-machine` and the terminal.
 
 We first need to build the relevant docker containers.  We're building a container
 off the [lmccalman/stateline](https://hub.docker.com/r/lmccalman/stateline/) image from dockerhub, so the first thing that will happen when you try to build the stateliner image is that the docker will pull down that repo.
