@@ -28,8 +28,10 @@ RUN /usr/share/doc/littler/examples/install.r jsonlite \
   && /usr/share/doc/littler/examples/installGithub.r \
     armstrtw/rzmq \
     smbache/loggr \
-    traitecoevo/callr \
-    traitecoevo/stateliner \
+    traitecoevo/callr
+
+# The actual stateliner package
+RUN /usr/share/doc/littler/examples/installGithub.r traitecoevo/stateliner \
   && r -e 'stateliner::install_scripts("/usr/local/bin")'
 
 ENTRYPOINT ['/usr/local/bin/stateliner']
