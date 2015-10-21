@@ -57,10 +57,12 @@ The options above include
 
 Then start a worker, using any of the following
 
+    docker run --rm traitecoevo/stateliner --help
+
     docker run --rm                   \
       --link stateline_server         \
       -v ${PWD}/inst:/example         \
-      traitecoevo/stateliner          \
+      traitecoevo/stateliner stateliner \
       --address=stateline_server:5555 \
       --config /example/gaussian.json \
       --source=/example/gaussian.R    \

@@ -34,4 +34,8 @@ RUN /usr/share/doc/littler/examples/install.r jsonlite \
 RUN /usr/share/doc/littler/examples/installGithub.r traitecoevo/stateliner \
   && r -e 'stateliner::install_scripts("/usr/local/bin")'
 
-ENTRYPOINT ['/usr/local/bin/stateliner']
+# I tried to get ENTRYPOINT here to work, but I'm getting a really
+# peculiar error.  I think that some of the rocker docker set up
+# things correctly set the environment for R use that does not work
+# with a noninteractive session here.
+CMD ['R']
