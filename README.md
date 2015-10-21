@@ -2,41 +2,43 @@
 
 Example of using [stateline](https://github.com/NICTA/stateline).
 
-You'll need to have docker-machine running and have to set up all your environment variables in each terminal window that you run docker in, as usual. Docker can be installed on OSX, Windows and Linux. A comprehensive guide can be found [here](http://docs.docker.com/mac/started/).
+If you're using a mac or windows, all docker commands require that you have `docker-machine` (or `boot2docker`) set appropriately.  A comprehensive guide can be found [here](http://docs.docker.com/mac/started/), but usually something like
 
-Once installed, Docker can be opened either via `Docker Quickstart Terminal` found in the docker folder in the applications folder, or accessed directly via the terminal using `docker-machine` followed by Docker commands. The instructions below use `docker-machine` and the terminal.
+```
+docker-machine start
+eval $(docker-machine env default)
+```
+
+will suffice.
+
+## Building the containers
 
 We first need to build the relevant docker containers.  We're building a container
 off the [lmccalman/stateline](https://hub.docker.com/r/lmccalman/stateline/) image from dockerhub, so the first thing that will happen when you try to build the stateliner image is that the docker will pull down that repo.
 
-Then build a container that contains a little more dependencies (for the Python worker and R worker examples)
+Then build a container that contains a little more dependencies (for the R worker example)
 
-    docker build -t traitecoevo/stateliner .
+    docker build -t traitecoevo/stateliner docker
 
-Instead of building the conatiner you can also pull it from dockerhub 
+Instead of building the conatiner you can also pull it (and the stateline server container) from dockerhub:
 
-    docker pull lmccalman/stateline 
-    docker pull traitecoevo/stateliner 
+    docker pull lmccalman/stateline
+    docker pull traitecoevo/stateliner
 
-All the examples below run using linked containers. The local folder `config` contains files for configuring stateline `demo-config.json` and for R and python based workers. When running the material below we mount this folder onto the containers. This enables us to source local files, without requiring that we rebuild the container each time these change.
+All the examples below run using linked containers. The local folder `config` contains files for configuring stateline `demo-config.json` and for R based workers. When running the material below we mount this folder onto the containers. This enables us to source local files, without requiring that we rebuild the container each time these change.
 
-First, start server
+First, start the stateline server
 
-    docker run --rm --name mystateline -it -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/stateline -c /config/demo-config.json
+    docker run --rm --name stateline_server -it -v $(PWD)/config:/config lmccalman/stateline /usr/local/bin/stateline -c /config/demo-config.json
 
 Then start a worker, using any of the following
 
 inbuilt worker written in cpp
 
-    docker run --rm -it --link mystateline:stateline -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/demo-worker -a stateline:5555
-
-python worker
-
-    docker run --rm -it --link mystateline:stateline -v $(pwd)/config:/config traitecoevo/stateliner python /config/demo-worker.py
-(note needs stateliner image because lmccalman/stateline lacks zeromq)
+    docker run --rm -it --link stateline_server:stateline -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/demo-worker -a stateline:5555
 
 R worker
 
-    docker run --rm -it --link mystateline:stateline  -v $(pwd)/config:/config traitecoevo/stateliner /config/demo-worker.R -n stateline:5555 -c /config/demo-config.json
+    docker run --rm -it --link stateline_server:stateline  -v $(pwd)/config:/config traitecoevo/stateliner /config/demo-worker.R -n stateline:5555 -c /config/demo-config.json
 
 These all seem to work; only problem is that we need to locate output files. Previously we mounted `-v $(pwd)/output/stateline:/tmp/build/output/stateline` but this no longer works because the tmp direcoty no longer exists. Once we locate the output files in the container we can do something similar. 
