@@ -27,4 +27,9 @@ RUN apt-get update \
 RUN /usr/share/doc/littler/examples/install.r jsonlite \
   && /usr/share/doc/littler/examples/installGithub.r \
     armstrtw/rzmq \
-    smbache/loggr
+    smbache/loggr \
+    traitecoevo/callr \
+    traitecoevo/stateliner \
+  && r -e 'stateliner::install_scripts("/usr/local/bin")'
+
+ENTRYPOINT ['/usr/local/bin/stateliner']

@@ -20,6 +20,8 @@ Then build a container that contains a little more dependencies (for the R worke
 
     docker build -t traitecoevo/stateliner docker
 
+## Running things
+
 Instead of building the conatiner you can also pull it (and the stateline server container) from dockerhub:
 
     docker pull lmccalman/stateline
@@ -29,16 +31,47 @@ All the examples below run using linked containers. The local folder `config` co
 
 First, start the stateline server
 
-    docker run --rm --name stateline_server -it -v $(PWD)/config:/config lmccalman/stateline /usr/local/bin/stateline -c /config/demo-config.json
+    docker run --rm -it           \
+      --name stateline_server     \
+      -v $(PWD)/inst:/config      \
+      -v $(PWD)/output:/stateline \
+      lmccalman/stateline         \
+      /usr/local/bin/stateline -c /config/gaussian.json
+
+Considerably easier will be to install the package and use the script:
+
+    devtools::install_github("traitecoevo/callr", "traitecoevo/stateliner")
+    stateliner::install_scripts("~/bin")
+
+then
+
+    stateline_server --config inst/gaussian.json
+
+which will set up all the appropriate links for you
+
+The options above include
+
+* `--name stateline_server`: name of the container to refer to later
+* `-v $(PWD)/inst:/config`: this is how we get the config file into stateline (see the `-c` option)
+* `-v $(PWD)/output:/stateline`: this means that the output will end up in `/output`; however, the correct value on the rhs of the colon depends on the values set in the configuration (`stateline_server` will map this appropriately)
 
 Then start a worker, using any of the following
 
-inbuilt worker written in cpp
+    docker run --rm                   \
+      --link stateline_server         \
+      -v ${PWD}/inst:/example         \
+      traitecoevo/stateliner          \
+      --address=stateline_server:5555 \
+      --config /example/gaussian.json \
+      --source=/example/gaussian.R    \
+      --target=gaussian
 
-    docker run --rm -it --link stateline_server:stateline -v $(pwd)/config:/config lmccalman/stateline /usr/local/bin/demo-worker -a stateline:5555
+Here, the options after the container name are passed through to the stateliner client and are
 
-R worker
+* `--config`: then name of the configuration file
+* `--source`: a source file to read (serveral `--source` options are allowed)
+* `--target`: the name of the target function to run
 
-    docker run --rm -it --link stateline_server:stateline  -v $(pwd)/config:/config traitecoevo/stateliner /config/demo-worker.R -n stateline:5555 -c /config/demo-config.json
+As soon as this worker is created, the server will start feeding it tasks; these will turn up in the `output` directory, due to the link when establishing the *server*.
 
-These all seem to work; only problem is that we need to locate output files. Previously we mounted `-v $(pwd)/output/stateline:/tmp/build/output/stateline` but this no longer works because the tmp direcoty no longer exists. Once we locate the output files in the container we can do something similar. 
+Note that there is no support for the workers detecting that the task is finished.  In theory I guess that the server should send a goodbye message but I don't see that.
