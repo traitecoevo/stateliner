@@ -10,11 +10,11 @@ MAINTAINER Daniel Falster <daniel.falster@mq.edu.au>
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
-				cmake \
+		cmake \
 		git \
 		nmap \
 	&& git clone https://github.com/NICTA/stateline /usr/local/src/stateline \
-	&& mkdir -p /stateline /tmp/build \
+	&& mkdir -p /tmp/build \
 	&& BUILD_DIR=/tmp/build PREREQ_DIR=/usr/local /usr/local/src/stateline/tools/fetch-deps \
 	&& ldconfig
 
@@ -35,16 +35,11 @@ RUN PREREQ_DIR=/usr/local cmake /usr/local/src/stateline -DCMAKE_BUILD_TYPE=Rele
 		/usr/local/src/stateline
 WORKDIR /
 
-# TODO: Waiting on avoiding cache invalidation due to bitbucket being down, but:
-#   * trim whitespace before cmake
-#   * don't create /stateline
-
 ## Then, we need some packages for stateliner itself (including
 ## stateliner).  This *could* be done with dockertest but given the
 ## amount of mess above doing it separately is probably simpler.
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		ca-certificates \
 		curl \
 		gfortran \
 		libcurl4-openssl-dev \
