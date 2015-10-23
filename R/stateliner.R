@@ -4,10 +4,11 @@
 ##'   argument \code{x} and returning a \emph{negative} log-likelhood.
 ##' @param config Path to the configuration file
 ##' @param address Address of the delegator
+##' @param verbose More verbose logging output?
 ##' @export
 ##'
-stateliner <- function(target, config, address) {
-  logging_start(all=FALSE)
+stateliner <- function(target, config, address, verbose=FALSE) {
+  logging_start(all=verbose)
   on.exit(logging_stop())
 
   loggr::log_info("Starting client")
@@ -40,6 +41,17 @@ RESULT    <- "4"
 GOODBYE   <- "5"
 
 handle_job <- function(target, job_type, job_data) {
+  ## For issue #1, switch function based on `as.integer(job_type)`;
+  ## this will be an integer on 0..(nJobTypes-1).  For now, we just
+  ## ignore that and all jobs are handled the same way.
+  ##
+  ## What is not clear is if we want to pass this through to the
+  ## function as a second argument (perhaps if
+  ## length(formals(target))>1 or based on some sort of switch to
+  ## stateliner()), or if we want to have a *list* of target functions
+  ## and index that.
+  ##
+  ##     job_type <- as.integer(job_type)
   sample <- as.numeric(strsplit(job_data, ":", fixed=TRUE)[[1]])
   target(sample)
 }
@@ -50,11 +62,18 @@ send_hello <- function(socket, nJobTypes) {
   send_multipart_string(socket, msg)
 }
 
+send_goodbye <- function(socket) {
+  loggr::log_info("Sending HELLO message...")
+  msg <- c("", GOODBYE)
+  send_multipart_string(socket, msg)
+}
+
 random_string <- function() {
   paste(sample(letters, 10), collapse="")
 }
 
 job_loop <- function(socket, target) {
+  on.exit(send_goodbye(socket))
   repeat {
     loggr::log_info("Getting job...")
     r <- receive_multipart_string(socket)

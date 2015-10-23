@@ -4,7 +4,7 @@
 \alias{stateliner}
 \title{Stateline R interface}
 \usage{
-stateliner(target, config, address)
+stateliner(target, config, address, verbose = FALSE)
 }
 \arguments{
 \item{target}{Target function; must be a function taking a single
@@ -13,6 +13,8 @@ argument \code{x} and returning a \emph{negative} log-likelhood.}
 \item{config}{Path to the configuration file}
 
 \item{address}{Address of the delegator}
+
+\item{verbose}{More verbose logging output?}
 }
 \description{
 Run stateline to sample from the given target function.

@@ -63,5 +63,4 @@ RUN apt-get update \
 RUN installGithub.r traitecoevo/stateliner \
 	&& r -e 'stateliner::install_scripts("/usr/local/bin")'
 
-## ENTRYPOINT ['/usr/local/bin/stateliner']
-CMD ["bash"]
+ENTRYPOINT ["/usr/local/bin/stateliner"]

@@ -62,11 +62,11 @@ Then start a worker, using any of the following
     docker run --rm                   \
       --link stateline_server         \
       -v ${PWD}/inst:/example         \
-      traitecoevo/stateliner stateliner \
-      --address=stateline_server:5555 \
+      traitecoevo/stateliner          \
+      --address stateline_server:5555 \
       --config /example/gaussian.json \
-      --source=/example/gaussian.R    \
-      --target=gaussian
+      --source /example/gaussian.R    \
+      --target gaussian
 
 Here, the options after the container name are passed through to the stateliner client and are
 
@@ -77,3 +77,14 @@ Here, the options after the container name are passed through to the stateliner 
 As soon as this worker is created, the server will start feeding it tasks; these will turn up in the `output` directory, due to the link when establishing the *server*.
 
 Note that there is no support for the workers detecting that the task is finished.  In theory I guess that the server should send a goodbye message but I don't see that.
+
+If you want to interactively debug, you'll need to start the container in interactive mode:
+
+    docker run --rm -it       \
+      --link stateline_server \
+      -v ${PWD}/inst:/example \
+      -v ${PWD}:/src          \
+      --entrypoint bash       \
+      traitecoevo/stateliner
+
+Note the `--entrypoint` argument here which overrides the default `stateliner` program running.

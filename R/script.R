@@ -19,7 +19,7 @@ install_scripts <- function(path) {
 worker_main <- function() {
   args <- worker_parse_args()
   target <- worker_main_get_target(args)
-  stateliner(target, args$config, args$address)
+  stateliner(target, args$config, args$address, args$verbose)
 }
 
 worker_main_get_target <- function(args) {
@@ -38,6 +38,7 @@ Options:
   --package=PKG      Packages to load
   --source=FILE      R source files to read in
   --target=TARGET    Name of the negative log likelhood function
+  --verbose          Verbose logging output?
 ' -> doc
   args <- docopt::docopt(doc, args)
   if (is.null(args$target)) {
