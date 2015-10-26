@@ -5,10 +5,12 @@ Example of using [stateline](https://github.com/NICTA/stateline).
 If you're using a mac or windows, all docker commands require that you have `docker-machine` (or `boot2docker`) set appropriately.  A comprehensive guide can be found [here](http://docs.docker.com/mac/started/), but usually something like
 
 ```
-docker-machine start
+docker-machine start default
+```
+or
+```
 eval $(docker-machine env default)
 ```
-
 will suffice.
 
 ## Building the containers
@@ -33,8 +35,8 @@ First, start the stateline server
 
     docker run --rm -it           \
       --name stateline_server     \
-      -v $(PWD)/inst:/config      \
-      -v $(PWD)/output:/stateline \
+      -v ${PWD}/inst:/config      \
+      -v ${PWD}/output:/stateline \
       lmccalman/stateline         \
       /usr/local/bin/stateline -c /config/gaussian.json
 
@@ -52,8 +54,8 @@ which will set up all the appropriate links for you
 The options above include
 
 * `--name stateline_server`: name of the container to refer to later
-* `-v $(PWD)/inst:/config`: this is how we get the config file into stateline (see the `-c` option)
-* `-v $(PWD)/output:/stateline`: this means that the output will end up in `/output`; however, the correct value on the rhs of the colon depends on the values set in the configuration (`stateline_server` will map this appropriately)
+* `-v ${PWD}/inst:/config`: this is how we get the config file into stateline (see the `-c` option)
+* `-v ${PWD}/output:/stateline`: this means that the output will end up in `/output`; however, the correct value on the right-hand side of the colon depends on the values set in the configuration (`stateline_server` will map this appropriately)
 
 Then start a worker, using any of the following
 
@@ -71,7 +73,7 @@ Then start a worker, using any of the following
 Here, the options after the container name are passed through to the stateliner client and are
 
 * `--config`: then name of the configuration file
-* `--source`: a source file to read (serveral `--source` options are allowed)
+* `--source`: a source file to read (several `--source` options are allowed)
 * `--target`: the name of the target function to run
 
 As soon as this worker is created, the server will start feeding it tasks; these will turn up in the `output` directory, due to the link when establishing the *server*.
