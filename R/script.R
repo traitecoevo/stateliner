@@ -15,7 +15,6 @@ install_scripts <- function(path) {
 
 ## TODO: This needs stripping down a little into a argument parser and
 ## general purpose runner.
-##' @importFrom callr load_source_files
 worker_main <- function() {
   args <- worker_parse_args()
   target <- worker_main_get_target(args)
@@ -24,7 +23,7 @@ worker_main <- function() {
 
 worker_main_get_target <- function(args) {
   e <- new.env(parent=.GlobalEnv)
-  callr::load_source_files(args$source, packages=args$package, envir=e)
+  load_source_files(args$source, packages=args$package, envir=e)
   get(args$target, e, mode="function", inherits=TRUE)
 }
 
@@ -64,4 +63,23 @@ Options:
 server_main <- function() {
   args <- server_parse_args()
   stateline_server(args$config, args$output, args$name, args$rm)
+}
+
+load_source_files <- function(source_files, envir=.GlobalEnv,
+                              packages=character(0), ...) {
+  do_source <- function(file, envir, ...) {
+    catch_source <- function(e) {
+      stop(sprintf("while sourcing %s:\n%s", file, e$message),
+           call.=FALSE)
+    }
+    tryCatch(sys.source(file, envir, ...),
+             error=catch_source)
+  }
+  for (p in packages) {
+    suppressMessages(library(p, character.only=TRUE, quietly=TRUE))
+  }
+  for (file in source_files) {
+    do_source(file, envir, ...)
+  }
+  invisible(envir)
 }

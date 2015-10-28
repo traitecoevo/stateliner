@@ -3,6 +3,5 @@
 export(install_scripts)
 export(stateline_server)
 export(stateliner)
-importFrom(callr,load_source_files)
 importFrom(docopt,docopt)
 importFrom(loggr,log_file)
