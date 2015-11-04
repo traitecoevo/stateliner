@@ -25,7 +25,17 @@ stateliner <- function(target, config, address, verbose=FALSE) {
 
   loggr::log_info(sprintf("Connecting to %s...", addr))
   rzmq::connect.socket(socket, addr)
-  on.exit(rzmq::disconnect.socket(socket, addr), add=TRUE)
+
+  # Disconnection is optional because does not exist in v0.7.7
+  # of rzmq, which is latest available on cran. Also latest version
+  # on gihtub (0.8.0) requires C++11 which is not yet available on windows
+  if( exists("rzmq::disconnect.socket")) {
+    f <- rzmq::disconnect.socket(socket, addr)
+  } else {
+    f <- NULL
+  }
+  on.exit(f, add=TRUE)
+
   loggr::log_info("Connected!")
 
   send_hello(socket, nJobTypes)
