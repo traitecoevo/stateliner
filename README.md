@@ -2,7 +2,9 @@
 
 Example of using [stateline](https://github.com/NICTA/stateline).
 
-If you're using a mac or windows, all docker commands require that you have `docker-machine` (or `boot2docker`) set appropriately.  A comprehensive guide can be found [here](http://docs.docker.com/mac/started/), but usually something like
+## Setting up docker
+
+The work-flow described below uses docker containers. If you're using a mac or windows, all docker commands require that you have `docker-machine` (or `boot2docker`) installed and set appropriately.  A comprehensive guide can be found [here](http://docs.docker.com/mac/started/), but usually something like
 
 ```
 docker-machine start default
@@ -13,10 +15,11 @@ eval $(docker-machine env default)
 ```
 will suffice.
 
+
 ## Building the containers
 
-We first need to build the relevant docker containers.  We're building a container
-off the [lmccalman/stateline](https://hub.docker.com/r/lmccalman/stateline/) image from dockerhub, so the first thing that will happen when you try to build the stateliner image is that the docker will pull down that repo.
+We first need to build the relevant docker containers.  We're building a new container
+off the [r-base](https://hub.docker.com/_/r-base/) image from dockerhub, so the first thing that will happen when you try to build the stateliner image is that the docker will pull down that repo.
 
 Then build a container that contains a little more dependencies (for the R worker example)
 
@@ -24,7 +27,7 @@ Then build a container that contains a little more dependencies (for the R worke
 
 ## Running things
 
-Instead of building the conatiner you can also pull it (and the stateline server container) from dockerhub:
+Instead of building the container you can also pull it (and the stateline server container) from dockerhub:
 
     docker pull lmccalman/stateline
     docker pull traitecoevo/stateliner

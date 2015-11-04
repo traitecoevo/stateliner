@@ -25,7 +25,7 @@ test_that("script options", {
   expect_that(args$source, equals("target.R"))
   expect_that(args$package, equals(NULL))
   expect_that(args$target, equals("nll"))
-  expext_that(args$verbose, is_true())
+  expect_that(args$verbose, is_true())
 
   f <- worker_main_get_target(args)
   expect_that(f, is_a("function"))

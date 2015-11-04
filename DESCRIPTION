@@ -3,11 +3,11 @@ Title: stateliner
 Version: 0.0.1
 Author: Rich FitzJohn
 Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
-Description: Interface to stateliner.
+Description: Interface to stateline.
 License: GPL-2
 LazyData: true
 URL: https://github.com/traitecoevo/stateliner
 BugReports: https://github.com/traitecoevo/stateliner/issues
 Imports: callr, docopt, jsonlite, loggr, rzmq
-Suggests: testthat
+Suggests: testthat, ggplot2, readr, tidyr
 SystemRequirements: stateline (docker: lmccalman/stateline)
