@@ -1,10 +1,32 @@
-# stateline and R on a mac via docker
+# Stateliner: an R interface to the stateline MCMC engine for R via docker
 
-Example of using [stateline](https://github.com/NICTA/stateline).
+## Introduction
+
+[Stateline](https://github.com/NICTA/stateline) is a framework for distributed Markov Chain Monte Carlo (MCMC) sampling written in C++.  Stateline is designed specifically for difficult inference problems in computational science; e.g. it allows for target distributions that are highly non-Gaussian, for conditioning on data that is non-linearly related to the model parameters, or where the models are expensive ‘black box’ functions, such as the solutions to numerical simulations. Some notable features of stateline include:
+
+- random walk Metropolis-Hastings algorithm with parallel tempering to improve chain mixing
+- an adaptive proposal distribution, to speed up convergence
+- allowing the user to factorise their likelihoods (eg. over sensors or data),
+- built for deploying computation on a cluster, e.g. Amazon Web Services
+- allowing users to execute likelihood calculations in their preferred language (eg. C++, R, python, ...).
+
+For more about stateline and the techniques involved, see the [stateline package.](https://github.com/NICTA/stateline).
+
+## Why stateliner
+
+The `stateliner` package is designed to make it easy for those using R code to interface with and use stateline. While stateline potentially allows for likelihoods to be written in any language, there is a certain amount of infrastructure needed to communicate between the works (your model in R) and stateline. The `stateliner` package provides that infrastructure, so that all you need to do is write R code.
+
+The work-flow described below uses docker containers. Docker containers are virtual machines that can be mounted onto your local machine, or a remote cluster environment. A comprehensive guide to docker can be found [here](http://docs.docker.com/mac/started/). There are two reasons we use docker here:
+
+1. It saves installing the stateline engine and other required components on your local machine. (Instead these are all accessed via the docker containers).
+2. It enables a seamless transition to running your compute in a cloud environment such as Amazon Web services (because the docker container can be mounted onto the remote machine).
+
+Please note that `stateliner` is ONLY set up to work with docker containers. (We do not support local installations.)
+
 
 ## Setting up docker
 
-The work-flow described below uses docker containers. A comprehensive guide can be found [here](http://docs.docker.com/mac/started/).  If you're using a mac or windows, all docker commands require that you have `docker-machine` set appropriately. For example, to build a virtual box with 3Gb memory and access to 3 cpus, run
+If you're using a mac or windows, all docker commands require that you have `docker-machine` set appropriately. (By contrast, docker is available by default on linux). First [install docker](http://docs.docker.com/mac/started/). For example, to build a virtual box with 3Gb memory and access to 3 cpus, run (in a terminal session)
 
 ```
 docker-machine create --driver virtualbox --virtualbox-memory "3000" --virtualbox-cpu-count 3 default
@@ -17,20 +39,25 @@ Then you can start the box
 docker-machine start default
 ```
 
-To use it you also need to set the environment in your terminal session
+And to use it you also need to set the environment in your terminal session
 
 ```
 eval $(docker-machine env default)
 ```
 
-## Building the containers
+## Building or fetching the containers
 
-We first need to build the relevant docker containers.  We're going to build two containers
+Once docker is installed, you can build the necessary containers, or pull down the pre-built containers from dockerhub. We're going to require two containers
 
-1. `traitecoevo/stateline`: base stateline implementation
-2. `traitecoevo/stateliner`: the R interface
+1. `traitecoevo/stateline`: contains the stateline server and engine
+2. `traitecoevo/stateliner`: an R interface to the stateline server
 
-Both containers build off other base containers ([ubuntu](https://hub.docker.com/_/ubuntu/) and [r-base](https://hub.docker.com/_/r-base/), so the first thing that will happen when you try to build these is that the docker will pull down that base layer.
+When we run stateline (below) we deploy both containers in a linked fashion. The `traitecoevo/stateline` container has a full installation of stateline, and is built directly from the [stateline](https://github.com/NICTA/stateline) repo. For the `traitecoevo/stateliner` container, the  focus is creating and installing R packages; it therefore makes sense to start from the `r-base` image, rather than from the stateline image.  The container gets all the relevant prerequisites for using R and stateline together and can be used to test simple likelihood functions, or as a base container in your own projects (eg. via  [`dockertest`](https://github.com/traitecoevo/dockertest)). The container contains the  stateline client, but does not contain a full stateline installation.
+
+To pull down the pre-built containers:
+
+    docker pull traitecoevo/stateline
+    docker pull traitecoevo/stateliner
 
 To build the `traitecoevo/stateline` container:
 
@@ -41,10 +68,7 @@ To build the `traitecoevo/stateliner` container:
 
     docker build -t traitecoevo/stateliner docker
 
-Instead of building the containers, you can also pull down the pre-built containers from dockerhub:
-
-    docker pull traitecoevo/stateline
-    docker pull traitecoevo/stateliner
+The dockerfile for building this container is in [docker/Dockerfile](docker/Dockerfile). Both containers build off other base containers ([ubuntu](https://hub.docker.com/_/ubuntu/) and [r-base](https://hub.docker.com/_/r-base/), so the first thing that will happen when you try to build these is that the docker will pull down that base layer.
 
 ## Running things
 
