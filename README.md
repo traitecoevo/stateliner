@@ -109,3 +109,33 @@ If you want to interactively debug, you'll need to start the container in intera
       traitecoevo/stateliner
 
 Note the `--entrypoint` argument here which overrides the default `stateliner` program running.
+
+## Analysis
+
+The stateliner package also includes routines for doing basic analysis of stateline output.
+For example, the code below should work for the output from the above example
+
+    library(stateliner)
+    path <- "output"
+
+Loads each chain in a list object
+
+    raw_samples <- load_chains(path)
+    sapply(raw_samples, nrow)
+
+We can remove an custom-defined warmup period
+
+    warmup <- 200
+    samples_minus_burnin <- remove_warmup(raw_samples, warmup)
+
+Or examine trace_plots to check
+
+    trace_plot(raw_samples, scales = "fixed")
+
+And calculate summary statistics of parameter posteriors
+
+    posterior_summary <- summarise_samples(samples_minus_burnin)
+
+Here is a density plot of the parameter posteriors
+
+    density_plot(remove_warmup(raw_samples, warmup))
