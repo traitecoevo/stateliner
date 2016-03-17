@@ -10,4 +10,4 @@ URL: https://github.com/traitecoevo/stateliner
 BugReports: https://github.com/traitecoevo/stateliner/issues
 Imports: callr, docopt, jsonlite, loggr, rzmq
 Suggests: testthat, ggplot2, readr, tidyr
-SystemRequirements: stateline (docker: lmccalman/stateline)
+SystemRequirements: stateline (docker: traitecoevo/stateline)

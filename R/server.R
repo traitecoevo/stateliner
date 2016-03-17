@@ -16,7 +16,7 @@ stateline_server <- function(config, output="output", name="stateline_server",
   output <- normalizePath(output)
 
   ## Output in the container:
-  output_sl <- jsonlite::fromJSON(readLines(config))$output$directory
+  output_sl <- jsonlite::fromJSON(readLines(config))[["outputPath"]]
   if (!grepl("^/", output_sl)) { # relative path
     output_sl <- sub("/$", "",
                      file.path("/stateline", sub("^.?/?", "", output_sl)))
@@ -34,7 +34,7 @@ stateline_server <- function(config, output="output", name="stateline_server",
             if (rm) "--rm",
             c("-v", paste0(dirname(config), ":/config")),
             c("-v", paste0(output, ":", output_sl)),
-            "lmccalman/stateline",
+            "traitecoevo/stateline",
             "/usr/local/bin/stateline",
             "-c", file.path("/config", basename(config))))
 }
