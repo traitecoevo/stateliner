@@ -79,7 +79,7 @@ First, start the stateline server
     docker run --rm -it           \
       --name stateline_server     \
       -v ${PWD}/inst:/config      \
-      -v ${PWD}/output:/stateline \
+      -v ${PWD}/output/demo:/stateline/demo \
       traitecoevo/stateline         \
       /usr/local/bin/stateline -c /config/gaussian.json
 
@@ -98,7 +98,7 @@ The options above include
 
 * `--name stateline_server`: name of the container to refer to later
 * `-v ${PWD}/inst:/config`: this is how we get the config file into stateline (see the `-c` option)
-* `-v ${PWD}/output:/stateline`: this means that the output will end up in `/output`; however, the correct value on the right-hand side of the colon depends on the values set in the configuration (`stateline_server` will map this appropriately)
+* `-v ${PWD}/output/demo:/stateline/demo`: this means that the output will end up in `output/demo`; however, the correct value on the right-hand side of the colon depends on the values set in the configuration (`stateline_server` will map this appropriately).
 
 Then start a worker, using any of the following
 
@@ -140,11 +140,12 @@ The stateliner package also includes routines for doing basic analysis of statel
 For example, the code below should work for the output from the above example
 
     library(stateliner)
-    path <- "output"
+    path <- "output/demo"
 
 Loads each chain in a list object
 
-    raw_samples <- load_chains(path)
+    raw_samples <- load_chains(path, nstacks = 2)
+
     sapply(raw_samples, nrow)
 
 We can remove an custom-defined warmup period

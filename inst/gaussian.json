@@ -5,7 +5,7 @@
 "nJobTypes": 1,
 "optimalAcceptRate": 0.234,
 "optimalSwapRate": 0.3874,
-"outputPath": "demo-output",
+"outputPath": "demo",
 "useInitial": false,
 "loggingRateSec": 1,
 "nStacks": 2,
